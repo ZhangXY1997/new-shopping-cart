@@ -8,6 +8,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import TemporaryDrawer from './cartBar.js';
 
 const useStyles = makeStyles({
   root: {
@@ -30,6 +31,8 @@ export default function ItemCard() {
   const classes = useStyles();
 
   const [data, setData] = useState({});
+  
+
   const products = Object.values(data);
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,6 +42,31 @@ export default function ItemCard() {
     };
     fetchProducts();
   }, []);
+
+  const useSelection = () => {
+    const [selected, setSelected] = useState({
+      selectedItem: [],
+      totalPrice: 0,
+    });
+    const toggle = (x, y) => {
+      var flag = false;
+      selected.selectedItem.map(prod => {
+        if (prod.sku === x.sku) {
+          prod.quantity += 1;
+          flag = true;
+        }
+      })
+      if (flag === false) {
+        x.quantity = 1;
+        setSelected({selectedItem: [x].concat(selected.selectedItem), totalPrice: y + selected.totalPrice})
+      } else {
+        setSelected({selectedItem: selected.selectedItem, totalPrice: y + selected.totalPrice})
+      }
+    };
+
+    return [ selected, toggle ];
+  };
+  const [selected, toggle] = useSelection();
 
   return (
     <ul>
@@ -79,13 +107,10 @@ export default function ItemCard() {
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="center" >
-                  <Button className={classes.button} variant="contained" color="primary">
-                    ADD TO CART
-                  </Button>
+                  <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } />
                 </Grid>
               </Grid>
             </Grid>
-              
             </CardActions>
           </Card>
         </Grid>

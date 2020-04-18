@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ItemCard from "./components/itemCard.js";
-import TitlebarGridList from "./components/cardList.js";
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 
