@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TemporaryDrawer from './cartBar.js';
+import CartIcon from './cartIcon.js';
 
 const useStyles = makeStyles({
   root: {
@@ -69,53 +70,64 @@ export default function ItemCard() {
   const [selected, toggle] = useSelection();
 
   return (
-    <ul>
-      <Grid container spacing={3}>
-      {products.map((product) => (
-          <Grid item xs={12} sm={3}>
-            <Card className={classes.root}>
-            <CardActionArea className={classes.card}>
-              <CardMedia
-                className={classes.img}
-                image={"/data/products/"+product.sku + "_1.jpg"}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="subtitle1" align="center">
-                  {product.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p" align="center">
-                  {product.description}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p" align="center">
-                  {product.currencyFormat}{product.price}
-                </Typography> 
-              </CardContent>
-            </CardActionArea>
-            <CardActions>
-             <Grid container spacing={3}>
-              <Grid item xs={12} sm={3}>
-                <Button className={classes.button} variant="outlined" size="small">S</Button>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button className={classes.button} variant="outlined" size="small">M</Button>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button className={classes.button} variant="outlined" size="small">L</Button>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button className={classes.button} variant="outlined" size="small">XL</Button>
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container justify="center" >
-                  <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } />
+    <div>
+      <div>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={11}>
+          </Grid>
+          <Grid item xs={12} sm={1}>
+            <CartIcon state={ { selected, toggle } } />
+          </Grid>
+        </Grid>
+      </div>
+      <ul>
+        <Grid container spacing={3}>
+        {products.map((product) => (
+            <Grid item xs={12} sm={3}>
+              <Card className={classes.root}>
+              <CardActionArea className={classes.card}>
+                <CardMedia
+                  className={classes.img}
+                  image={"/data/products/"+product.sku + "_1.jpg"}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="subtitle1" align="center">
+                    {product.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p" align="center">
+                    {product.description}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p" align="center">
+                    {product.currencyFormat}{product.price}
+                  </Typography> 
+                </CardContent>
+              </CardActionArea>
+              <CardActions>
+               <Grid container spacing={3}>
+                <Grid item xs={12} sm={3}>
+                  <Button className={classes.button} variant="outlined" size="small">S</Button>
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Button className={classes.button} variant="outlined" size="small">M</Button>
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Button className={classes.button} variant="outlined" size="small">L</Button>
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Button className={classes.button} variant="outlined" size="small">XL</Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Grid container justify="center" >
+                    <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } />
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-            </CardActions>
-          </Card>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
         </Grid>
-      ))}
-      </Grid>
-    </ul>
+      </ul>
+    </div>
   );
 }

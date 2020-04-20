@@ -7,6 +7,7 @@ import MediaControlCard from './cart.js';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 
 const useStyles = makeStyles({
   list: {
@@ -21,7 +22,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TemporaryDrawer({ prod, state }) {
+function CartIcon({ state }) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -36,11 +37,6 @@ export default function TemporaryDrawer({ prod, state }) {
     setCart({ ...cart, [anchor]: open });
   };
 
-  const buttonClick = (anchor) => {
-    state.toggle(prod, prod.price);
-    setCart({ ...cart, [anchor]: true });
-  }
-
   const list = (anchor) => (
 
     <div
@@ -49,14 +45,14 @@ export default function TemporaryDrawer({ prod, state }) {
     >
       <div>
         <IconButton color="secondary" onClick={toggleDrawer(anchor, false)}>
-        <CloseIcon />
+          <CloseIcon />
         </IconButton>
       </div>
       <ul className={classes.ul} >
         {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
-        {"SUBTOTAL: "+prod.currencyFormat}{state.selected.totalPrice}
+        {"SUBTOTAL: $"}{state.selected.totalPrice}
       </Typography>    
     </div>
    
@@ -65,7 +61,9 @@ export default function TemporaryDrawer({ prod, state }) {
   return (
     <div>
       <React.Fragment key={'right'}>
-        <Button variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
+        <IconButton fontSize="large" onClick={toggleDrawer('right', true)}>
+          <ShoppingCartIcon />
+        </IconButton>
         <Drawer anchor={'right'} open={cart['right']} onClose={toggleDrawer('right', false)}>
           {list('right')}
         </Drawer>
@@ -73,6 +71,8 @@ export default function TemporaryDrawer({ prod, state }) {
     </div>
   );
 }
+
+export default CartIcon;
 
 // classes={{ paper: classes.paper }}
 
