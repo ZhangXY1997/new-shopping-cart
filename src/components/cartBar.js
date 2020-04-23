@@ -21,7 +21,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TemporaryDrawer({ prod, state }) {
+export default function TemporaryDrawer({ prod, state, state1 }) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -39,7 +39,9 @@ export default function TemporaryDrawer({ prod, state }) {
   const buttonClick = (anchor) => {
     state.toggle(prod, prod.price);
     setCart({ ...cart, [anchor]: true });
+    state1.setTprice(state1.tprice + prod.price);
   }
+
 
   const list = (anchor) => (
 
@@ -53,10 +55,10 @@ export default function TemporaryDrawer({ prod, state }) {
         </IconButton>
       </div>
       <ul className={classes.ul} >
-        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} />)}
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
-        {"SUBTOTAL: "+prod.currencyFormat}{state.selected.totalPrice}
+        {"SUBTOTAL: "+prod.currencyFormat}{state1.tprice}
       </Typography>    
     </div>
    

@@ -22,7 +22,7 @@ const useStyles = makeStyles({
   },
 });
 
-function CartIcon({ state }) {
+function CartIcon({ state, state1 }) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -49,10 +49,10 @@ function CartIcon({ state }) {
         </IconButton>
       </div>
       <ul className={classes.ul} >
-        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} />)}
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
-        {"SUBTOTAL: $"}{state.selected.totalPrice}
+        {"SUBTOTAL: $"}{state1.tprice}
       </Typography>    
     </div>
    
@@ -61,8 +61,8 @@ function CartIcon({ state }) {
   return (
     <div>
       <React.Fragment key={'right'}>
-        <IconButton fontSize="large" onClick={toggleDrawer('right', true)}>
-          <ShoppingCartIcon />
+        <IconButton onClick={toggleDrawer('right', true)}>
+          <ShoppingCartIcon fontSize="large"/>
         </IconButton>
         <Drawer anchor={'right'} open={cart['right']} onClose={toggleDrawer('right', false)}>
           {list('right')}

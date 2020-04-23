@@ -25,14 +25,61 @@ const useStyles = makeStyles({
   },
   button: {
     minWidth: 50,
-  }
+  },
+  list: {
+    width: 440,
+  },
+  ul: {
+    margin: 0,
+    padding: 0,
+  },
+  paper: {
+    backgroundColor: 'black',
+  },
 });
 
-export default function ItemCard() {
+export default function All() {
   const classes = useStyles();
 
+  const [cart, setCart] = useState({
+    right: false,
+  });
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setCart({ ...cart, [anchor]: open });
+  };
+
+  const buttonClick = (anchor) => {
+    state.toggle(prod, prod.price);
+    setCart({ ...cart, [anchor]: true });
+  }
+
+  const list = (anchor) => (
+
+    <div
+      className={clsx(classes.list)}
+      role="presentation"
+    >
+      <div>
+        <IconButton color="secondary" onClick={toggleDrawer(anchor, false)}>
+        <CloseIcon />
+        </IconButton>
+      </div>
+      <ul className={classes.ul} >
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} totalprice={state.selected.totalPrice} />)}
+      </ul>  
+      <Typography gutterBottom variant="subtitle1" >
+        {"SUBTOTAL: "+prod.currencyFormat}{state.selected.totalPrice.price}
+      </Typography>    
+    </div>
+   
+  );
+
   const [data, setData] = useState({});
-  const [tprice, setTprice] = useState(0);
   
 
   const products = Object.values(data);
@@ -79,7 +126,7 @@ export default function ItemCard() {
           <Grid item xs={12} sm={11}>
           </Grid>
           <Grid item xs={12} sm={1}>
-            <CartIcon state={ { selected, toggle } } state1={{tprice, setTprice}} />
+            <CartIcon state={ { selected, toggle } } />
           </Grid>
         </Grid>
       </div>
@@ -121,7 +168,14 @@ export default function ItemCard() {
                 </Grid>
                 <Grid item xs={12}>
                   <Grid container justify="center" >
-                    <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } state1={{tprice, setTprice}} />
+                    <div>
+                      <React.Fragment key={'right'}>
+                        <Button variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
+                        <Drawer anchor={'right'} open={cart['right']} onClose={toggleDrawer('right', false)}>
+                          {list('right')}
+                        </Drawer>
+                      </React.Fragment>
+                    </div>
                   </Grid>
                 </Grid>
               </Grid>

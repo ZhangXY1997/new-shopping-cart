@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function MediaControlCard({product}) {
+export default function MediaControlCard({product, state}) {
   const classes = useStyles();
 
   const [count, setCount] = useState(product.quantity);
@@ -47,55 +47,66 @@ export default function MediaControlCard({product}) {
   const addItem = () => {
     setCount(count+ 1);
     product.quantity=count;
+    state.setTprice( state.tprice + product.price);
   }
 
   const reduce = () => {
     setCount(Math.max(count - 1, 0));
     product.quantity=count;
+    if (count >= 0) {
+      state.setTprice( state.tprice - product.price);
+    }
+    
   }
   product.quantity=count;
   
-
-  return (
-    <Card className={classes.root}>
-      <CardMedia
-        className={classes.cover}
-        image={"/data/products/"+product.sku +"_1.jpg"}
-      />
-      <div>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={12}>
-            <CardContent className={classes.content}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={9}>
-                  <Typography gutterBottom variant="subtitle1" >
-                    {product.title}
-                  </Typography>
-                  <Typography className={classes.text} gutterBottom variant="subtitle1" >
-                    {"size|"+ product.description}
-                  </Typography>
-                  <Typography className={classes.text} gutterBottom variant="subtitle1" >
-                    {"Quantity:" + count}
-                  </Typography>
+  if (product.quantity > 0) {
+    return (
+      <Card className={classes.root}>
+        <CardMedia
+          className={classes.cover}
+          image={"/data/products/"+product.sku +"_1.jpg"}
+        />
+        <div>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={12}>
+              <CardContent className={classes.content}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={9}>
+                    <Typography gutterBottom variant="subtitle1" >
+                      {product.title}
+                    </Typography>
+                    <Typography className={classes.text} gutterBottom variant="subtitle1" >
+                      {"size|"+ product.description}
+                    </Typography>
+                    <Typography className={classes.text} gutterBottom variant="subtitle1" >
+                      {"Quantity:" + count}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Typography gutterBottom variant="subtitle1" >
+                      {product.currencyFormat}{product.price}
+                    </Typography>
+                    <ButtonGroup>
+                      <IconButton aria-label="increase" onClick={() => addItem() } >
+                        <AddIcon />
+                      </IconButton>
+                      <IconButton aria-label="reduce" onClick={() => reduce() } >
+                        <RemoveIcon />
+                      </IconButton>
+                    </ButtonGroup>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Typography gutterBottom variant="subtitle1" >
-                    {product.currencyFormat}{product.price}
-                  </Typography>
-                  <ButtonGroup>
-                    <IconButton aria-label="increase" onClick={() => addItem() } >
-                      <AddIcon />
-                    </IconButton>
-                    <IconButton aria-label="reduce" onClick={() => reduce() } >
-                      <RemoveIcon />
-                    </IconButton>
-                  </ButtonGroup>
-                </Grid>
-              </Grid>
-            </CardContent>
+              </CardContent>
+            </Grid>
           </Grid>
-        </Grid>
+        </div>
+      </Card>
+    );
+  } else {
+    return(
+      <div>
       </div>
-    </Card>
-  );
+    );
+  }
 }
