@@ -22,7 +22,7 @@ const useStyles = makeStyles({
   },
 });
 
-function CartIcon({ state, state1 }) {
+function CartIcon({ state, state1, inventory }) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -49,7 +49,7 @@ function CartIcon({ state, state1 }) {
         </IconButton>
       </div>
       <ul className={classes.ul} >
-        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} />)}
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} inventory={inventory[product.sku]} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
         {"SUBTOTAL: $"}{state1.tprice}

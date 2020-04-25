@@ -21,7 +21,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TemporaryDrawer({ prod, state, state1 }) {
+export default function TemporaryDrawer({ prod, state, state1, size, inventory, dis}) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -37,9 +37,10 @@ export default function TemporaryDrawer({ prod, state, state1 }) {
   };
 
   const buttonClick = (anchor) => {
-    state.toggle(prod, prod.price);
+    state.toggle(prod, prod.price, size);
     setCart({ ...cart, [anchor]: true });
     state1.setTprice(state1.tprice + prod.price);
+    inventory[prod.sku][size] -= 1;
   }
 
 
@@ -55,7 +56,7 @@ export default function TemporaryDrawer({ prod, state, state1 }) {
         </IconButton>
       </div>
       <ul className={classes.ul} >
-        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} />)}
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} inventory={inventory[product.sku]} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
         {"SUBTOTAL: "+prod.currencyFormat}{state1.tprice}
@@ -67,7 +68,7 @@ export default function TemporaryDrawer({ prod, state, state1 }) {
   return (
     <div>
       <React.Fragment key={'right'}>
-        <Button variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
+        <Button key={prod.sku} disabled={false} variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
         <Drawer anchor={'right'} open={cart['right']} onClose={toggleDrawer('right', false)}>
           {list('right')}
         </Drawer>

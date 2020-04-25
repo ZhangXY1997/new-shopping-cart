@@ -39,7 +39,21 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function MediaControlCard({product, state}) {
+function Add({product, inventory, addItem}) {
+  if (inventory[product.size] <= 0) {
+    return (
+      <div></div>
+    );
+  } else {
+    return (
+      <IconButton aria-label="increase" onClick={() => addItem() } >
+        <AddIcon />
+      </IconButton>
+    );
+  }
+}
+
+export default function MediaControlCard({product, state, inventory}) {
   const classes = useStyles();
 
   const [count, setCount] = useState(product.quantity);
@@ -48,6 +62,7 @@ export default function MediaControlCard({product, state}) {
     setCount(count+ 1);
     product.quantity=count;
     state.setTprice( state.tprice + product.price);
+    inventory[product.size]-=1;
   }
 
   const reduce = () => {
@@ -56,7 +71,7 @@ export default function MediaControlCard({product, state}) {
     if (count >= 0) {
       state.setTprice( state.tprice - product.price);
     }
-    
+    inventory[product.size]+=1;
   }
   product.quantity=count;
   
@@ -77,7 +92,7 @@ export default function MediaControlCard({product, state}) {
                       {product.title}
                     </Typography>
                     <Typography className={classes.text} gutterBottom variant="subtitle1" >
-                      {"size|"+ product.description}
+                      {product.size + "|"+ product.description}
                     </Typography>
                     <Typography className={classes.text} gutterBottom variant="subtitle1" >
                       {"Quantity:" + count}
@@ -88,9 +103,7 @@ export default function MediaControlCard({product, state}) {
                       {product.currencyFormat}{product.price}
                     </Typography>
                     <ButtonGroup>
-                      <IconButton aria-label="increase" onClick={() => addItem() } >
-                        <AddIcon />
-                      </IconButton>
+                      <Add product={product} inventory={inventory} addItem={addItem} />
                       <IconButton aria-label="reduce" onClick={() => reduce() } >
                         <RemoveIcon />
                       </IconButton>

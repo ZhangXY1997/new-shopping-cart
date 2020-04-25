@@ -10,10 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TemporaryDrawer from './cartBar.js';
 import CartIcon from './cartIcon.js';
+import SizeButton from './sizebutton.js';
 
 const useStyles = makeStyles({
   root: {
-    
+    minWidth: 300,
   },
   img: {
     height: "80%",
@@ -33,7 +34,9 @@ export default function ItemCard() {
 
   const [data, setData] = useState({});
   const [tprice, setTprice] = useState(0);
-  
+  const [inventorydata, setInventorydata] = useState({});
+  const [size, setSize] = useState("");
+  const [dis, setDis] = useState(true);
 
   const products = Object.values(data);
   useEffect(() => {
@@ -45,6 +48,16 @@ export default function ItemCard() {
     fetchProducts();
   }, []);
 
+  const inventory = Object(inventorydata);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const response = await fetch('./data/inventory.json');
+      const json = await response.json();
+      setInventorydata(json);
+    };
+    fetchProducts();
+  }, []);
+
   const useSelection = () => {
     const [selected, setSelected] = useState({
       selectedItem: [],
@@ -52,17 +65,19 @@ export default function ItemCard() {
         price: 0,
       },
     });
-    const toggle = (x, y) => {
+    const toggle = (x, y, size) => {
       var flag = false;
       selected.selectedItem.map(prod => {
-        if (prod.sku === x.sku) {
+        if (prod.sku === x.sku && prod.size === size) {
           prod.quantity += 1;
           flag = true;
         }
       })
       if (flag === false) {
         x.quantity = 1;
-        setSelected({selectedItem: [x].concat(selected.selectedItem), totalPrice: {price: y + selected.totalPrice.price}})
+        var temp = Object.assign({}, x);;
+        temp.size = size;
+        setSelected({selectedItem: [temp].concat(selected.selectedItem), totalPrice: {price: y + selected.totalPrice.price}})
       } else {
         setSelected({selectedItem: selected.selectedItem, totalPrice: {price: y + selected.totalPrice.price}})
       }
@@ -79,15 +94,15 @@ export default function ItemCard() {
           <Grid item xs={12} sm={11}>
           </Grid>
           <Grid item xs={12} sm={1}>
-            <CartIcon state={ { selected, toggle } } state1={{tprice, setTprice}} />
+            <CartIcon state={ { selected, toggle } } state1={{tprice, setTprice}} inventory={ inventory } />
           </Grid>
         </Grid>
       </div>
       <ul>
         <Grid container spacing={3}>
         {products.map((product) => (
-            <Grid item xs={12} sm={3}>
-              <Card className={classes.root}>
+            <Grid className={classes.root} item xs={12} sm={3}>
+              <Card>
               <CardActionArea className={classes.card}>
                 <CardMedia
                   className={classes.img}
@@ -107,21 +122,10 @@ export default function ItemCard() {
               </CardActionArea>
               <CardActions>
                <Grid container spacing={3}>
-                <Grid item xs={12} sm={3}>
-                  <Button className={classes.button} variant="outlined" size="small">S</Button>
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Button className={classes.button} variant="outlined" size="small">M</Button>
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Button className={classes.button} variant="outlined" size="small">L</Button>
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Button className={classes.button} variant="outlined" size="small">XL</Button>
-                </Grid>
+                  <SizeButton inventory={ inventory[product.sku] } state={ {size, setSize} } state1={{dis, setDis}} />
                 <Grid item xs={12}>
                   <Grid container justify="center" >
-                    <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } state1={{tprice, setTprice}} />
+                    <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } state1={{tprice, setTprice}} size={size} inventory={ inventory } dis={dis} />
                   </Grid>
                 </Grid>
               </Grid>
