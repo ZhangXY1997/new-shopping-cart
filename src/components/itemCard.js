@@ -35,8 +35,6 @@ export default function ItemCard() {
   const [data, setData] = useState({});
   const [tprice, setTprice] = useState(0);
   const [inventorydata, setInventorydata] = useState({});
-  const [size, setSize] = useState("");
-  const [dis, setDis] = useState(true);
 
   const products = Object.values(data);
   useEffect(() => {
@@ -101,40 +99,52 @@ export default function ItemCard() {
       <ul>
         <Grid container spacing={3}>
         {products.map((product) => (
-            <Grid className={classes.root} item xs={12} sm={3}>
-              <Card>
-              <CardActionArea className={classes.card}>
-                <CardMedia
-                  className={classes.img}
-                  image={"/data/products/"+product.sku + "_1.jpg"}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="subtitle1" align="center">
-                    {product.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p" align="center">
-                    {product.description}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p" align="center">
-                    {product.currencyFormat}{product.price}
-                  </Typography> 
-                </CardContent>
-              </CardActionArea>
-              <CardActions>
-               <Grid container spacing={3}>
-                  <SizeButton inventory={ inventory[product.sku] } state={ {size, setSize} } state1={{dis, setDis}} />
-                <Grid item xs={12}>
-                  <Grid container justify="center" >
-                    <TemporaryDrawer key={ product.sku } prod={product} state={ { selected, toggle } } state1={{tprice, setTprice}} size={size} inventory={ inventory } dis={dis} />
-                  </Grid>
-                </Grid>
-              </Grid>
-              </CardActions>
-            </Card>
-          </Grid>
+            <ProdCard product={product} inventory={inventory} state={ { selected, toggle } } state1={{tprice, setTprice}} />
         ))}
         </Grid>
       </ul>
     </div>
+  );
+}
+
+function ProdCard({product, inventory, state, state1}) {
+  const classes = useStyles();
+
+  const [dis, setDis] = useState(true);
+  const [size, setSize] = useState("");
+
+
+  return (
+    <Grid className={classes.root} item xs={12} sm={3}>
+      <Card>
+        <CardActionArea className={classes.card}>
+          <CardMedia
+            className={classes.img}
+            image={"/data/products/"+product.sku + "_1.jpg"}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="subtitle1" align="center">
+              {product.title}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="p" align="center">
+              {product.description}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="p" align="center">
+              {product.currencyFormat}{product.price}
+            </Typography> 
+          </CardContent>
+        </CardActionArea>
+        <CardActions>
+         <Grid container spacing={3}>
+            <SizeButton inventory={ inventory[product.sku] } state={ {size, setSize} } state1={{dis, setDis}} />
+          <Grid item xs={12}>
+            <Grid container justify="center" >
+              <TemporaryDrawer key={ product.sku } prod={product} state={ state } state1={state1} size={size} inventory={ inventory } disstate={{dis, setDis}} />
+            </Grid>
+          </Grid>
+        </Grid>
+        </CardActions>
+      </Card>
+    </Grid>
   );
 }

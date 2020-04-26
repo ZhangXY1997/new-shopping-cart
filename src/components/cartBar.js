@@ -21,7 +21,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TemporaryDrawer({ prod, state, state1, size, inventory, dis}) {
+export default function TemporaryDrawer({ prod, state, state1, size, inventory, disstate}) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -41,6 +41,11 @@ export default function TemporaryDrawer({ prod, state, state1, size, inventory, 
     setCart({ ...cart, [anchor]: true });
     state1.setTprice(state1.tprice + prod.price);
     inventory[prod.sku][size] -= 1;
+  }
+
+  const drawerClick = (anchor) => {
+    setCart({ ...cart, [anchor]: false });
+    disstate.setDis(true);
   }
 
 
@@ -68,8 +73,8 @@ export default function TemporaryDrawer({ prod, state, state1, size, inventory, 
   return (
     <div>
       <React.Fragment key={'right'}>
-        <Button key={prod.sku} disabled={false} variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
-        <Drawer anchor={'right'} open={cart['right']} onClose={toggleDrawer('right', false)}>
+        <Button key={prod.sku} disabled={disstate.dis} variant="contained" color="primary" onClick={() =>buttonClick('right') }>ADD TO CART</Button>
+        <Drawer anchor={'right'} open={cart['right']} onClose={() => drawerClick('right')}>
           {list('right')}
         </Drawer>
       </React.Fragment>
