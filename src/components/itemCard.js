@@ -11,6 +11,8 @@ import Grid from '@material-ui/core/Grid';
 import TemporaryDrawer from './cartBar.js';
 import CartIcon from './cartIcon.js';
 import SizeButton from './sizebutton.js';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
 const useStyles = makeStyles({
   root: {
@@ -36,24 +38,38 @@ export default function ItemCard() {
   const [tprice, setTprice] = useState(0);
   const [inventorydata, setInventorydata] = useState({});
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyDGehOXzZLBnpMnP5u1kG528ol92JlgoXA",
+    authDomain: "new-shopping-cart-b228f.firebaseapp.com",
+    databaseURL: "https://new-shopping-cart-b228f.firebaseio.com",
+    projectId: "new-shopping-cart-b228f",
+    storageBucket: "new-shopping-cart-b228f.appspot.com",
+    messagingSenderId: "642892692693",
+    appId: "1:642892692693:web:cd5a3285525e12eca9f65c",
+    measurementId: "G-6RNQNL6N00"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database().ref();
+
   const products = Object.values(data);
   useEffect(() => {
-    const fetchProducts = async () => {
-      const response = await fetch('./data/products.json');
-      const json = await response.json();
-      setData(json);
-    };
-    fetchProducts();
+    db.child("products").on("value", function(snapshot) {
+      setData(snapshot.val());
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
   }, []);
 
   const inventory = Object(inventorydata);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const response = await fetch('./data/inventory.json');
-      const json = await response.json();
-      setInventorydata(json);
-    };
-    fetchProducts();
+    useEffect(() => {
+    db.child("inventory").on("value", function(snapshot) {
+      setInventorydata(snapshot.val());
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
   }, []);
 
   const useSelection = () => {
