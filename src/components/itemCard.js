@@ -11,6 +11,7 @@ import Grid from '@material-ui/core/Grid';
 import TemporaryDrawer from './cartBar.js';
 import CartIcon from './cartIcon.js';
 import SizeButton from './sizebutton.js';
+import Signin from './signin.js';
 import firebase from 'firebase/app';
 import 'firebase/database';
 
@@ -105,7 +106,10 @@ export default function ItemCard() {
     <div>
       <div>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={11}>
+          <Grid item xs={12} sm={7} >
+          </Grid>
+          <Grid item xs={12} sm={4} >
+            <Signin />
           </Grid>
           <Grid item xs={12} sm={1}>
             <CartIcon state={ { selected, toggle } } state1={{tprice, setTprice}} inventory={ inventory } />
