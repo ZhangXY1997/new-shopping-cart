@@ -5,15 +5,13 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TemporaryDrawer from './cartBar.js';
 import CartIcon from './cartIcon.js';
 import SizeButton from './sizebutton.js';
 import Signin from './signin.js';
-import firebase from 'firebase/app';
-import 'firebase/database';
+import firebase from './firebase.js';
 
 const useStyles = makeStyles({
   root: {
@@ -33,26 +31,13 @@ const useStyles = makeStyles({
 });
 
 export default function ItemCard() {
-  const classes = useStyles();
 
   const [data, setData] = useState({});
   const [tprice, setTprice] = useState(0);
   const [inventorydata, setInventorydata] = useState({});
+  const [uid, setUid] = useState();
+  const [carts, setCarts] = useState();
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDGehOXzZLBnpMnP5u1kG528ol92JlgoXA",
-    authDomain: "new-shopping-cart-b228f.firebaseapp.com",
-    databaseURL: "https://new-shopping-cart-b228f.firebaseio.com",
-    projectId: "new-shopping-cart-b228f",
-    storageBucket: "new-shopping-cart-b228f.appspot.com",
-    messagingSenderId: "642892692693",
-    appId: "1:642892692693:web:cd5a3285525e12eca9f65c",
-    measurementId: "G-6RNQNL6N00"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
   const db = firebase.database().ref();
 
   const products = Object.values(data);
@@ -71,6 +56,27 @@ export default function ItemCard() {
     }, function (errorObject) {
       console.log("The read failed: " + errorObject.code);
     });
+  }, [uid]);
+
+  useEffect(() => {
+      firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+              setUid(user.uid);
+          }
+      });
+  });
+
+  useEffect(() => {
+      const dbCarts = db.child("carts");
+      const handleData = snap => {
+          if (snap.val()){
+              setCarts(snap.val(), );
+          };
+      };
+      dbCarts.on('value', handleData, error => alert(error));
+      return () => {
+          dbCarts.off('value', handleData);
+      };
   }, []);
 
   const useSelection = () => {
@@ -80,6 +86,23 @@ export default function ItemCard() {
         price: 0,
       },
     });
+    useEffect(() => {
+      if (uid && carts) {
+        const userInfo = carts[uid];
+        if (userInfo.items) {
+          var dbPrice = 0;
+          userInfo.items.map(prod => {
+            dbPrice += prod.price * prod.quantity;
+          })
+          setTprice(dbPrice);
+          setSelected({selectedItem: userInfo.items, totalPrice: {price: dbPrice}})
+        }
+      } else {
+        setSelected({selectedItem: [], totalPrice: {price: 0}})
+        setTprice(0);
+      }
+    }, [uid]);
+
     const toggle = (x, y, size) => {
       var flag = false;
       selected.selectedItem.map(prod => {
@@ -93,8 +116,33 @@ export default function ItemCard() {
         var temp = Object.assign({}, x);;
         temp.size = size;
         setSelected({selectedItem: [temp].concat(selected.selectedItem), totalPrice: {price: y + selected.totalPrice.price}})
+        if (uid) {
+          const items = selected.selectedItem;
+        items.push(temp);
+        db.child("carts").child(uid)
+          .update({
+              items: items
+          })
+          .catch(error => alert(error));
+        }
+        
+
       } else {
         setSelected({selectedItem: selected.selectedItem, totalPrice: {price: y + selected.totalPrice.price}})
+        if (uid && carts[uid].items) {
+          const userInfo = carts[uid]
+          userInfo.items.map(prod => {
+            if (prod.sku === x.sku && prod.size === size) {
+              prod.quantity += 1;
+              db.child("carts")
+              .update({
+                  [uid]: userInfo
+              })
+              .catch(error => alert(error));
+            }
+          })
+        }
+        
       }
     };
 
@@ -109,7 +157,7 @@ export default function ItemCard() {
           <Grid item xs={12} sm={7} >
           </Grid>
           <Grid item xs={12} sm={4} >
-            <Signin />
+            <Signin state={{uid, setUid}} />
           </Grid>
           <Grid item xs={12} sm={1}>
             <CartIcon state={ { selected, toggle } } state1={{tprice, setTprice}} inventory={ inventory } />
@@ -119,7 +167,7 @@ export default function ItemCard() {
       <ul>
         <Grid container spacing={3}>
         {products.map((product) => (
-            <ProdCard product={product} inventory={inventory} state={ { selected, toggle } } state1={{tprice, setTprice}} />
+            <ProdCard product={product} inventory={inventory} state={ { selected, toggle } } state1={{tprice, setTprice}} state2={{carts, setCarts}} uid={uid} />
         ))}
         </Grid>
       </ul>
@@ -127,7 +175,7 @@ export default function ItemCard() {
   );
 }
 
-function ProdCard({product, inventory, state, state1}) {
+function ProdCard({product, inventory, state, state1, state2, uid}) {
   const classes = useStyles();
 
   const [dis, setDis] = useState(true);
@@ -159,7 +207,7 @@ function ProdCard({product, inventory, state, state1}) {
             <SizeButton inventory={ inventory[product.sku] } state={ {size, setSize} } state1={{dis, setDis}} />
           <Grid item xs={12}>
             <Grid container justify="center" >
-              <TemporaryDrawer key={ product.sku } prod={product} state={ state } state1={state1} size={size} inventory={ inventory } disstate={{dis, setDis}} />
+              <TemporaryDrawer key={ product.sku } prod={product} state={ state } state1={state1} state2={state2} size={size} inventory={ inventory } disstate={{dis, setDis}} uid={uid} />
             </Grid>
           </Grid>
         </Grid>

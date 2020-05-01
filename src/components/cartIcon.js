@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import Button from '@material-ui/core/Button';
 import MediaControlCard from './cart.js';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';

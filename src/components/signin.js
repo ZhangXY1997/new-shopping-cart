@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import 'firebase/auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-import firebase from 'firebase/app';
+import firebase from './firebase.js';
 import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
@@ -16,9 +16,9 @@ const useStyles = makeStyles({
   },
 });
 
+const db = firebase.database().ref();
 
-
-export default function Signin() {
+export default function Signin({state}) {
 	const classes = useStyles();
 
 	const [user, setUser] = useState(null);
@@ -33,7 +33,17 @@ export default function Signin() {
 	    firebase.auth.GoogleAuthProvider.PROVIDER_ID
 	  ],
 	  callbacks: {
-	    signInSuccessWithAuthResult: () => false
+	    signInSuccessWithAuthResult: (result) => {
+        // update user record in database whenever the user signs in
+	        db.child("carts").child(`${result.user.uid}`)
+	            .update({
+	                displayName: result.user.displayName,
+	                email: result.user.email,
+	            })
+	            .catch(error => alert(error));
+
+	        return false;
+	    }
 	  }
 	};
 
@@ -42,6 +52,11 @@ export default function Signin() {
 	    { user ? <Welcome user={ user } /> : <Sign/> }
 	  </React.Fragment>
 	);
+
+	const handleSignOutClick = () => {
+		firebase.auth().signOut();
+		state.setUid(null);
+	}
 
 	const Welcome = ({ user }) => (
 		<div>
@@ -52,7 +67,7 @@ export default function Signin() {
 		            </Typography>
           		</Grid>
           		<Grid item xs={12} sm={4} >
-          			<Button className={classes.button} color="inherit" primary onClick={() => firebase.auth().signOut()}>
+          			<Button className={classes.button} color="inherit" primary onClick={() => handleSignOutClick()} >
 						Log out
 					</Button>
           		</Grid>
@@ -69,7 +84,4 @@ export default function Signin() {
 	);
 
 	return (<Banner user={ user } />);
-	// return (
-	// 	<Button className={classes.button} color="inherit">Login</Button>
-	// );
 }

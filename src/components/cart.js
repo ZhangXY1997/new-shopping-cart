@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -7,9 +7,9 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import RemoveIcon from '@material-ui/icons/Remove';
+import firebase from './firebase.js';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,7 +53,9 @@ function Add({product, inventory, addItem}) {
   }
 }
 
-export default function MediaControlCard({product, state, inventory}) {
+const db = firebase.database().ref();
+
+export default function MediaControlCard({product, state, state1, inventory, uid}) {
   const classes = useStyles();
 
   const [count, setCount] = useState(product.quantity);
@@ -63,6 +65,28 @@ export default function MediaControlCard({product, state, inventory}) {
     product.quantity=count;
     state.setTprice( state.tprice + product.price);
     inventory[product.size]-=1;
+    if (uid  && state1.carts[uid].items) {
+      const userInfo = state1.carts[uid]
+      userInfo.items.map(prod => {
+        if (prod.sku === product.sku && prod.size === product.size) {
+          prod.quantity += 1;
+          db.child("carts")
+          .update({
+              [uid]: userInfo
+          })
+          .catch(error => alert(error));
+        }
+      })
+    }
+    
+    if (uid) {
+      db.child("inventory")
+      .update({
+          [product.sku]: inventory
+      })
+      .catch(error => alert(error));
+    }
+    
   }
 
   const reduce = () => {
@@ -72,6 +96,29 @@ export default function MediaControlCard({product, state, inventory}) {
       state.setTprice( state.tprice - product.price);
     }
     inventory[product.size]+=1;
+    if (uid && state1.carts[uid].items) {
+      const userInfo = state1.carts[uid]
+      userInfo.items.map(prod => {
+        if (prod.sku === product.sku && prod.size === product.size) {
+          prod.quantity -= 1;
+          db.child("carts")
+          .update({
+              [uid]: userInfo
+          })
+          .catch(error => alert(error));
+        }
+      })
+    }
+    
+    if (uid) {
+      db.child("inventory")
+      .update({
+          [product.sku]: inventory
+      })
+      .catch(error => alert(error));
+    }
+    
+
   }
   product.quantity=count;
   

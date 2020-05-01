@@ -7,6 +7,7 @@ import MediaControlCard from './cart.js';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import firebase from './firebase.js';
 
 const useStyles = makeStyles({
   list: {
@@ -21,7 +22,9 @@ const useStyles = makeStyles({
   },
 });
 
-export default function TemporaryDrawer({ prod, state, state1, size, inventory, disstate}) {
+const db = firebase.database().ref();
+
+export default function TemporaryDrawer({ prod, state, state1, state2, size, inventory, disstate, uid}) {
   const classes = useStyles();
 
   const [cart, setCart] = useState({
@@ -41,6 +44,13 @@ export default function TemporaryDrawer({ prod, state, state1, size, inventory, 
     setCart({ ...cart, [anchor]: true });
     state1.setTprice(state1.tprice + prod.price);
     inventory[prod.sku][size] -= 1;
+    if (uid) {
+      db.update({
+          "inventory": inventory
+      })
+      .catch(error => alert(error));
+    }
+    
   }
 
   const drawerClick = (anchor) => {
@@ -61,7 +71,7 @@ export default function TemporaryDrawer({ prod, state, state1, size, inventory, 
         </IconButton>
       </div>
       <ul className={classes.ul} >
-        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} inventory={inventory[product.sku]} />)}
+        {state.selected.selectedItem.map(product => <MediaControlCard key={ product.sku } product={product} state={state1} state1={state2} inventory={inventory[product.sku]} uid={uid} />)}
       </ul>  
       <Typography gutterBottom variant="subtitle1" >
         {"SUBTOTAL: "+prod.currencyFormat}{state1.tprice}
